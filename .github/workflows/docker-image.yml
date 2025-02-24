@@ -15,7 +15,7 @@ jobs:
     - name: Build the Docker image
       run: |
         TIMESTAMP=$(date +%s)
-        docker login --username ${{ github.repository_owner}} --password ${{ secrets.REPO_TOKEN }} ghcr.io
+        echo ${{ secrets.REPO_TOKEN }} | docker login --username ${{ github.repository_owner}} --password-stdin ghcr.io
         docker build . --file Dockerfile --tag esp32-pc-power-controller:$TIMESTAMP
         
     - name: push to repo

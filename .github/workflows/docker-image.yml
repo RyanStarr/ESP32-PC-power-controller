@@ -2,17 +2,25 @@ name: esp32-pc-power-controller
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "dev", "main"]
   pull_request:
-    branches: [ "main" ]
-
+    branches: [ "dev", "main"]
+  
 jobs:
-
   build:
-
-    runs-on: alpine
+    runs-on: self-hosted
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag esp32-pc-power-controller:$(date +%s)
+      run: |
+        TIMESTAMP=$(date +%s)
+        docker login --username ${{ github.repository_owner}} --password ${{ secrets.REPO_TOKEN }} ghcr.io
+        docker build . --file Dockerfile --tag esp32-pc-power-controller:$TIMESTAMP
+        
+    - name: push to repo
+      run: |
+        docker tag esp32-pc-power-controller:$TIMESTAMP ghcr.io/${{ github.repository_owner}}/esp32-pc-power-controller:$TIMESTAMP
+        docker tag esp32-pc-power-controller:$TIMESTAMP ghcr.io/${{ github.repository_owner}}/esp32-pc-power-controller:latest
+        docker push ghcr.io/${{ github.repository_owner}}/esp32-pc-power-controller:$TIMESTAMP
+        docker push ghcr.io/${{ github.repository_owner}}/esp32-pc-power-controller:latest

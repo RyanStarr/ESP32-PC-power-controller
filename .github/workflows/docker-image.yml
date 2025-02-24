@@ -12,10 +12,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.REPO_TOKEN }}
     - name: Build the Docker image
       run: |
         TIMESTAMP=$(date +%s)
-        echo ${{ secrets.REPO_TOKEN }} | docker login --username ${{ github.repository_owner}} --password-stdin ghcr.io
         docker build . --file Dockerfile --tag esp32-pc-power-controller:$TIMESTAMP
         
     - name: push to repo

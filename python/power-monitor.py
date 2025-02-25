@@ -31,7 +31,7 @@ def get_battery_voltage():
         client = InfluxDBClient(url=INFLUXDB_URL, token=INFLUXDB_TOKEN, org=INFLUXDB_ORG)
         query = f'''
         from(bucket: "{INFLUXDB_BUCKET}")
-          |> range(start: -1d)
+          |> range(start: -30d)
           |> filter(fn: (r) => r._measurement == "charge_controller" and r._field == "battery_voltage")
           |> last()
         '''
@@ -58,20 +58,20 @@ def control_pc(voltage, mqtt_client):
         print(f"Error controlling PC: {e}")
 
 #Check MQTT connection
-def on_connect(client, userdata, flags, rc):
+def on_connect(client, userdata, flags, rc, properties=None):
     if rc == 0:
         print("Connected to MQTT Broker!")
     else:
         print(f"Failed to connect, return code {rc}")
 
 #Send command via MQTT
-def on_publish(client, userdata, mid):
+def on_publish(client, userdata, mid, properties=None, reasonCode=None):
     print(f"Message published: {mid}")
 
 #Connect to MQTT and begin battery voltage check
 def main():
     try:
-        mqtt_client = mqtt.Client()
+        mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
         mqtt_client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
         mqtt_client.on_connect = on_connect
         mqtt_client.on_publish = on_publish

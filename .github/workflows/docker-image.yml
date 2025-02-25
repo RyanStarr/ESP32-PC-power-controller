@@ -23,7 +23,7 @@ jobs:
     
     - name: Get timestamp
       run: echo "TIMESTAMP=$(date +%s)" >> $GITHUB_ENV
-      
+
     - name: Build the Docker image
       run: |
         docker build . --file Dockerfile --tag esp32-pc-power-controller:$TIMESTAMP \
@@ -43,9 +43,9 @@ jobs:
         
     - name: push to repo
       run: |
-        docker tag esp32-pc-power-controller:$TIMESTAMP ghcr.io/${{ github.repository_owner}}/esp32-pc-power-controller:$TIMESTAMP
-        docker tag esp32-pc-power-controller:$TIMESTAMP ghcr.io/${{ github.repository_owner}}/esp32-pc-power-controller:latest
-        docker push ghcr.io/${{ github.repository_owner}}/esp32-pc-power-controller:$TIMESTAMP
-        docker push ghcr.io/${{ github.repository_owner}}/esp32-pc-power-controller:latest
+        docker tag esp32-pc-power-controller:$TIMESTAMP ${{secrets.REPOSITORY_NAME}}:$TIMESTAMP
+        docker tag esp32-pc-power-controller:$TIMESTAMP ${{secrets.REPOSITORY_NAME}}:latest
+        docker push ${{secrets.REPOSITORY_NAME}}:$TIMESTAMP
+        docker push ${{secrets.REPOSITORY_NAME}}:latest
       env:
         TIMESTAMP: ${{ env.TIMESTAMP }}

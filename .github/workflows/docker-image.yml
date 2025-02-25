@@ -11,7 +11,9 @@ jobs:
     runs-on: self-hosted
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout the repository
+      uses: actions/checkout@v3
+    
     - name: Login to GitHub Container Registry
       uses: docker/login-action@v3
       with:
@@ -21,7 +23,19 @@ jobs:
     - name: Build the Docker image
       run: |
         TIMESTAMP=$(date +%s)
-        docker build . --file Dockerfile --tag esp32-pc-power-controller:$TIMESTAMP
+        docker build . --file Dockerfile --tag esp32-pc-power-controller:$TIMESTAMP \
+        --build-arg INFLUXDB_URL=${{secrets.INFLUXDB_URL}} \
+        --build-arg INFLUXDB_TOKEN=${{secrets.INFLUXDB_TOKEN}} \
+        --build-arg INFLUXDB_ORG=${{secrets.INFLUXDB_ORG}} \
+        --build-arg INFLUXDB_BUCKET=${{secrets.INFLUXDB_BUCKET}} \
+        --build-arg MQTT_USERNAME=${{secrets.MQTT_USERNAME}} \
+        --build-arg MQTT_PASSWORD=${{secrets.MQTT_PASSWORD}} \
+        --build-arg MQTT_BROKER=${{secrets.MQTT_BROKER}} \
+        --build-arg MQTT_PORT=${{secrets.MQTT_PORT}} \
+        --build-arg MQTT_TOPIC=${{secrets.MQTT_TOPIC}} \
+        --build-arg VOLTAGE_OFF_THRESHOLD=${{secrets.VOLTAGE_OFF_THRESHOLD}} \
+        --build-arg VOLTAGE_ON_THRESHOLD=${{secrets.VOLTAGE_ON_THRESHOLD}}
+
         
     - name: push to repo
       run: |

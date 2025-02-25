@@ -22,7 +22,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build the Docker image
       run: |
-        TIMESTAMP=$(date +%s)
+        echo "TIMESTAMP=$(date +%s)" >> $GITHUB_ENV
         docker build . --file Dockerfile --tag esp32-pc-power-controller:$TIMESTAMP \
         --build-arg INFLUXDB_URL=${{secrets.INFLUXDB_URL}} \
         --build-arg INFLUXDB_TOKEN=${{secrets.INFLUXDB_TOKEN}} \
@@ -43,3 +43,5 @@ jobs:
         docker tag esp32-pc-power-controller:$TIMESTAMP ghcr.io/${{ github.repository_owner}}/esp32-pc-power-controller:latest
         docker push ghcr.io/${{ github.repository_owner}}/esp32-pc-power-controller:$TIMESTAMP
         docker push ghcr.io/${{ github.repository_owner}}/esp32-pc-power-controller:latest
+      env:
+        TIMESTAMP: ${{ env.TIMESTAMP }}

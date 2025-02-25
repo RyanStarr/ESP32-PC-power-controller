@@ -20,9 +20,12 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Get timestamp
+      run: echo "TIMESTAMP=$(date +%s)" >> $GITHUB_ENV
+      
     - name: Build the Docker image
       run: |
-        echo "TIMESTAMP=$(date +%s)" >> $GITHUB_ENV
         docker build . --file Dockerfile --tag esp32-pc-power-controller:$TIMESTAMP \
         --build-arg INFLUXDB_URL=${{secrets.INFLUXDB_URL}} \
         --build-arg INFLUXDB_TOKEN=${{secrets.INFLUXDB_TOKEN}} \
@@ -35,7 +38,8 @@ jobs:
         --build-arg MQTT_TOPIC=${{secrets.MQTT_TOPIC}} \
         --build-arg VOLTAGE_OFF_THRESHOLD=${{secrets.VOLTAGE_OFF_THRESHOLD}} \
         --build-arg VOLTAGE_ON_THRESHOLD=${{secrets.VOLTAGE_ON_THRESHOLD}}
-
+      env:
+        TIMESTAMP: ${{ env.TIMESTAMP }}
         
     - name: push to repo
       run: |

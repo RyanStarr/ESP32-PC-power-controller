@@ -20,10 +20,12 @@ jobs:
         registry: ghcr.io
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
-
+    
+    - name: Get timestamp
+      run: echo "TIMESTAMP=$(date +%s)" >> $GITHUB_ENV
+  
     - name: Build the Docker image
       run: |
-        TIMESTAMP=$(date +%s)
         docker build . --file Dockerfile --tag esp32-pc-power-controller:$TIMESTAMP \
         --build-arg INFLUXDB_URL=${{secrets.INFLUXDB_URL}} \
         --build-arg INFLUXDB_TOKEN=${{secrets.INFLUXDB_TOKEN}} \
@@ -36,15 +38,18 @@ jobs:
         --build-arg MQTT_TOPIC=${{secrets.MQTT_TOPIC}} \
         --build-arg VOLTAGE_OFF_THRESHOLD=${{secrets.VOLTAGE_OFF_THRESHOLD}} \
         --build-arg VOLTAGE_ON_THRESHOLD=${{secrets.VOLTAGE_ON_THRESHOLD}}
-  
+      env:
+        TIMESTAMP: ${{env.TIMESTAMP}}
+
   Push-to-container-registry:
     runs-on: self-hosted
-
     steps:
     - name: Push to Container Registry
       run: |
-        TIMESTAMP=$(date +%s)
-        docker tag esp32-pc-power-controller:$TIMESTAMP ghcr.io/${{ github.repository_owner }}/esp32-pc-power-controller:$TIMESTAMP
-        docker tag esp32-pc-power-controller:$TIMESTAMP ghcr.io/${{ github.repository_owner }}/esp32-pc-power-controller:latest
-        docker push ghcr.io/${{ github.repository_owner }}/esp32-pc-power-controller:$TIMESTAMP
-        docker push ghcr.io/${{ github.repository_owner }}/esp32-pc-power-controller:latest
+        docker tag esp32-pc-power-controller:$TIMESTAMP ghcr.io/${{secrets.REPO_OWNER_LOWERCASE}}/esp32-pc-power-controller:$TIMESTAMP
+        docker tag esp32-pc-power-controller:$TIMESTAMP ghcr.io/${{secrets.REPO_OWNER_LOWERCASE}}/esp32-pc-power-controller:latest
+        docker push ghcr.io/${{secrets.REPO_OWNER_LOWERCASE}}/esp32-pc-power-controller:$TIMESTAMP
+        docker push ghcr.io/${{secrets.REPO_OWNER_LOWERCASE}}/esp32-pc-power-controller:latest
+      
+        env:
+        TIMESTAMP: ${{ env.TIMESTAMP }}

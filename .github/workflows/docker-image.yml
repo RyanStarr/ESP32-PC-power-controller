@@ -1,25 +1,26 @@
-name: esp32-pc-power-controller 
+name: Build and Push Docker Image
 
 on:
   push:
     branches: [ "dev", "main"]
   pull_request:
     branches: [ "dev", "main"]
-  
+
 jobs:
-  build:
+  Build:
     runs-on: self-hosted
 
     steps:
     - name: Checkout the repository
       uses: actions/checkout@v3
-    
+
     - name: Login to GitHub Container Registry
       uses: docker/login-action@v3
       with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Build the Docker image
       run: |
         TIMESTAMP=$(date +%s)
@@ -35,11 +36,15 @@ jobs:
         --build-arg MQTT_TOPIC=${{secrets.MQTT_TOPIC}} \
         --build-arg VOLTAGE_OFF_THRESHOLD=${{secrets.VOLTAGE_OFF_THRESHOLD}} \
         --build-arg VOLTAGE_ON_THRESHOLD=${{secrets.VOLTAGE_ON_THRESHOLD}}
+  
+  Push-to-container-registry:
+    runs-on: self-hosted
 
-        
-    - name: push to repo
+    steps:
+    - name: Push to Container Registry
       run: |
-        docker tag esp32-pc-power-controller:$TIMESTAMP ghcr.io/${{ github.repository_owner}}/esp32-pc-power-controller:$TIMESTAMP
-        docker tag esp32-pc-power-controller:$TIMESTAMP ghcr.io/${{ github.repository_owner}}/esp32-pc-power-controller:latest
-        docker push ghcr.io/${{ github.repository_owner}}/esp32-pc-power-controller:$TIMESTAMP
-        docker push ghcr.io/${{ github.repository_owner}}/esp32-pc-power-controller:latest
+        TIMESTAMP=$(date +%s)
+        docker tag esp32-pc-power-controller:$TIMESTAMP ghcr.io/${{ github.repository_owner }}/esp32-pc-power-controller:$TIMESTAMP
+        docker tag esp32-pc-power-controller:$TIMESTAMP ghcr.io/${{ github.repository_owner }}/esp32-pc-power-controller:latest
+        docker push ghcr.io/${{ github.repository_owner }}/esp32-pc-power-controller:$TIMESTAMP
+        docker push ghcr.io/${{ github.repository_owner }}/esp32-pc-power-controller:latest

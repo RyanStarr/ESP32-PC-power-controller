@@ -51,5 +51,5 @@ jobs:
         docker push ghcr.io/${{secrets.REPO_OWNER_LOWERCASE}}/esp32-pc-power-controller:$TIMESTAMP
         docker push ghcr.io/${{secrets.REPO_OWNER_LOWERCASE}}/esp32-pc-power-controller:latest
       
-        env:
-        TIMESTAMP: ${{ env.TIMESTAMP }}
+      env:
+        TIMESTAMP: ${{env.TIMESTAMP}}
